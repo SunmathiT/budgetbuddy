@@ -21,6 +21,9 @@ function App() {
   const [category, setCategory] = useState('Food')
   const [note, setNote] = useState('')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  )
 
   const [budget, setBudget] = useState(() => {
     return localStorage.getItem('budget') || '10000'
@@ -34,7 +37,11 @@ function App() {
     localStorage.setItem('budget', budget)
   }, [budget])
 
-  const totalSpent = expenses.reduce(
+  const monthlyExpenses = expenses.filter((expense) =>
+    expense.date?.startsWith(selectedMonth)
+  )
+
+  const totalSpent = monthlyExpenses.reduce(
     (total, expense) => total + Number(expense.amount),
     0
   )
@@ -42,7 +49,7 @@ function App() {
   const remaining = Number(budget) - totalSpent
 
   const categoryData = Object.values(
-    expenses.reduce((data, expense) => {
+    monthlyExpenses.reduce((data, expense) => {
       if (!data[expense.category]) {
         data[expense.category] = {
           name: expense.category,
@@ -104,6 +111,15 @@ function App() {
         </div>
       </section>
 
+      <section className="filter-box">
+        <label>View Month:</label>
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(event) => setSelectedMonth(event.target.value)}
+        />
+      </section>
+
       <section className="budget-box">
         <label>Set Monthly Budget: ₹</label>
         <input
@@ -154,12 +170,12 @@ function App() {
         </form>
 
         <section className="expense-list">
-          <h2>Your Expenses</h2>
+          <h2>Expenses for {selectedMonth}</h2>
 
-          {expenses.length === 0 ? (
-            <p>No expenses added yet.</p>
+          {monthlyExpenses.length === 0 ? (
+            <p>No expenses added for this month.</p>
           ) : (
-            expenses.map((expense) => (
+            monthlyExpenses.map((expense) => (
               <div className="expense-item" key={expense.id}>
                 <div>
                   <strong>{expense.category}</strong>
@@ -184,7 +200,7 @@ function App() {
         <h2>Category-wise Expense Chart</h2>
 
         {categoryData.length === 0 ? (
-          <p>Add expenses to see the chart.</p>
+          <p>Add expenses for this month to see the chart.</p>
         ) : (
           <div className="chart-box">
             <ResponsiveContainer width="100%" height="100%">
