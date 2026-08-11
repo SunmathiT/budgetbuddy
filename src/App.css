@@ -1,0 +1,194 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #312e81, #7c3aed, #db2777);
+  min-height: 100vh;
+  color: #1e1b4b;
+}
+
+.app {
+  max-width: 1050px;
+  margin: auto;
+  padding: 35px 20px;
+}
+
+header {
+  text-align: center;
+  color: white;
+  margin-bottom: 28px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: 38px;
+}
+
+header p {
+  margin: 0;
+  font-size: 17px;
+  color: #f5d0fe;
+}
+
+.summary {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.card {
+  flex: 1;
+  padding: 22px;
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.card:nth-child(1) {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+}
+
+.card:nth-child(2) {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.card:nth-child(3) {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.card p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.card h2 {
+  margin: 12px 0 0;
+  font-size: 28px;
+}
+
+.danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+}
+
+.success h2,
+.danger h2 {
+  color: white;
+}
+
+.budget-box {
+  background: #fef3c7;
+  padding: 18px;
+  border-radius: 14px;
+  margin-bottom: 22px;
+  color: #78350f;
+  font-weight: bold;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+}
+
+.budget-box input {
+  display: inline-block;
+  width: 180px;
+  margin-left: 10px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 13px;
+  border: 2px solid #c4b5fd;
+  border-radius: 9px;
+  font-size: 15px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 22px;
+}
+
+.expense-form,
+.expense-list {
+  background: white;
+  padding: 23px;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+.expense-form h2,
+.expense-list h2 {
+  color: #6d28d9;
+  margin-top: 0;
+}
+
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+button {
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #7c3aed, #db2777);
+  color: white;
+  font-weight: bold;
+  padding: 13px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #5b21b6, #be185d);
+}
+
+.expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #ede9fe;
+  padding: 14px 0;
+}
+
+.expense-item p {
+  margin: 5px 0 0;
+  color: #64748b;
+}
+
+.expense-item button {
+  display: block;
+  margin-top: 7px;
+  padding: 7px 10px;
+  background: #ef4444;
+}
+
+.expense-item button:hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 700px) {
+  .summary,
+  .content {
+    display: block;
+  }
+
+  .card,
+  .expense-form,
+  .expense-list {
+    margin-bottom: 15px;
+  }
+
+  .budget-box input {
+    width: 100%;
+    margin: 10px 0 0;
+  }
+}
