@@ -24,10 +24,12 @@ function App() {
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
   )
-
-  const [budget, setBudget] = useState(() => {
-    return localStorage.getItem('budget') || '10000'
-  })
+  const [budget, setBudget] = useState(
+    () => localStorage.getItem('budget') || '10000'
+  )
+  const [editingId, setEditingId] = useState(null)
+  const [search, setSearch] = useState('')
+  const [filterCategory, setFilterCategory] = useState('All')
 
   useEffect(() => {
     localStorage.setItem('expenses', JSON.stringify(expenses))
@@ -48,6 +50,11 @@ function App() {
 
   const remaining = Number(budget) - totalSpent
 
+  const budgetPercentage =
+    Number(budget) > 0
+      ? Math.min(Math.round((totalSpent / Number(budget)) * 100), 100)
+      : 0
+
   const categoryData = Object.values(
     monthlyExpenses.reduce((data, expense) => {
       if (!data[expense.category]) {
@@ -62,7 +69,32 @@ function App() {
     }, {})
   )
 
-  function addExpense(event) {
+  const topCategory =
+    categoryData.length > 0
+      ? categoryData.reduce((highest, item) =>
+          item.value > highest.value ? item : highest
+        )
+      : null
+
+  const filteredExpenses = monthlyExpenses.filter((expense) => {
+    const matchesCategory =
+      filterCategory === 'All' || expense.category === filterCategory
+
+    const searchText = `${expense.category} ${expense.note}`.toLowerCase()
+    const matchesSearch = searchText.includes(search.toLowerCase())
+
+    return matchesCategory && matchesSearch
+  })
+
+  function resetForm() {
+    setAmount('')
+    setCategory('Food')
+    setNote('')
+    setDate(new Date().toISOString().split('T')[0])
+    setEditingId(null)
+  }
+
+  function addOrUpdateExpense(event) {
     event.preventDefault()
 
     if (!amount || Number(amount) <= 0) {
@@ -70,21 +102,47 @@ function App() {
       return
     }
 
-    const newExpense = {
-      id: Date.now(),
+    const expenseData = {
       amount,
       category,
       note,
       date,
     }
 
-    setExpenses([newExpense, ...expenses])
-    setAmount('')
-    setNote('')
+    if (editingId) {
+      setExpenses(
+        expenses.map((expense) =>
+          expense.id === editingId ? { ...expense, ...expenseData } : expense
+        )
+      )
+    } else {
+      setExpenses([{ id: Date.now(), ...expenseData }, ...expenses])
+    }
+
+    resetForm()
+  }
+
+  function editExpense(expense) {
+    setAmount(expense.amount)
+    setCategory(expense.category)
+    setNote(expense.note)
+    setDate(expense.date)
+    setEditingId(expense.id)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function deleteExpense(id) {
     setExpenses(expenses.filter((expense) => expense.id !== id))
+  }
+
+  function clearAllExpenses() {
+    const shouldDelete = window.confirm(
+      'Are you sure you want to delete all expenses?'
+    )
+
+    if (shouldDelete) {
+      setExpenses([])
+    }
   }
 
   return (
@@ -111,6 +169,22 @@ function App() {
         </div>
       </section>
 
+      <section className="progress-section">
+        <p>Budget Used: {budgetPercentage}%</p>
+        <div className="progress-track">
+          <div
+            className={`progress-fill ${remaining < 0 ? 'over-budget' : ''}`}
+            style={{ width: `${budgetPercentage}%` }}
+          />
+        </div>
+
+        {totalSpent >= Number(budget) ? (
+          <p className="alert danger-text">⚠ Budget limit exceeded!</p>
+        ) : totalSpent >= Number(budget) * 0.8 ? (
+          <p className="alert warning-text">⚠ You have used 80% of your budget.</p>
+        ) : null}
+      </section>
+
       <section className="filter-box">
         <label>View Month:</label>
         <input
@@ -129,9 +203,16 @@ function App() {
         />
       </section>
 
+      {topCategory && (
+        <section className="top-category">
+          🏆 Top Spending Category: <strong>{topCategory.name}</strong> — ₹
+          {topCategory.value}
+        </section>
+      )}
+
       <section className="content">
-        <form className="expense-form" onSubmit={addExpense}>
-          <h2>Add Expense</h2>
+        <form className="expense-form" onSubmit={addOrUpdateExpense}>
+          <h2>{editingId ? 'Edit Expense' : 'Add Expense'}</h2>
 
           <input
             type="number"
@@ -166,16 +247,54 @@ function App() {
             onChange={(event) => setDate(event.target.value)}
           />
 
-          <button type="submit">Add Expense</button>
+          <button type="submit">
+            {editingId ? 'Update Expense' : 'Add Expense'}
+          </button>
+
+          {editingId && (
+            <button type="button" className="cancel-btn" onClick={resetForm}>
+              Cancel Edit
+            </button>
+          )}
         </form>
 
         <section className="expense-list">
-          <h2>Expenses for {selectedMonth}</h2>
+          <div className="list-header">
+            <h2>Expenses for {selectedMonth}</h2>
+            {monthlyExpenses.length > 0 && (
+              <button className="clear-btn" onClick={clearAllExpenses}>
+                Clear All
+              </button>
+            )}
+          </div>
 
-          {monthlyExpenses.length === 0 ? (
-            <p>No expenses added for this month.</p>
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Search expense..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+
+          <select
+            className="category-filter"
+            value={filterCategory}
+            onChange={(event) => setFilterCategory(event.target.value)}
+          >
+            <option>All</option>
+            <option>Food</option>
+            <option>Travel</option>
+            <option>Shopping</option>
+            <option>Bills</option>
+            <option>Health</option>
+            <option>Entertainment</option>
+            <option>Others</option>
+          </select>
+
+          {filteredExpenses.length === 0 ? (
+            <p>No matching expenses found.</p>
           ) : (
-            monthlyExpenses.map((expense) => (
+            filteredExpenses.map((expense) => (
               <div className="expense-item" key={expense.id}>
                 <div>
                   <strong>{expense.category}</strong>
@@ -184,8 +303,9 @@ function App() {
                   </p>
                 </div>
 
-                <div>
+                <div className="expense-actions">
                   <strong>₹{expense.amount}</strong>
+                  <button onClick={() => editExpense(expense)}>Edit</button>
                   <button onClick={() => deleteExpense(expense.id)}>
                     Delete
                   </button>

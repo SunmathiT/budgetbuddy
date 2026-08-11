@@ -223,3 +223,84 @@ button:hover {
   width: 180px;
   margin-left: 10px;
 }
+.progress-section,
+.top-category {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+}
+
+.progress-section p {
+  margin: 0 0 10px;
+  font-weight: bold;
+}
+
+.progress-track {
+  height: 14px;
+  background: #e5e7eb;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  border-radius: 20px;
+}
+
+.progress-fill.over-budget {
+  background: #ef4444;
+}
+
+.alert {
+  margin: 12px 0 0 !important;
+}
+
+.warning-text {
+  color: #d97706;
+}
+
+.danger-text {
+  color: #dc2626;
+}
+
+.top-category {
+  color: #5b21b6;
+  font-size: 17px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.clear-btn,
+.cancel-btn {
+  background: #ef4444;
+}
+
+.clear-btn {
+  padding: 8px 10px;
+}
+
+.search-input,
+.category-filter {
+  margin-bottom: 12px;
+}
+
+.expense-actions {
+  text-align: right;
+}
+
+.expense-actions button {
+  margin: 7px 0 0 6px;
+  padding: 7px 10px;
+}
+
+.expense-actions button:first-of-type {
+  background: #2563eb;
+}
