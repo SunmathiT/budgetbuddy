@@ -1,5 +1,16 @@
 import { useEffect, useState } from 'react'
+import { PieChart, Pie, Cell, Legend, ResponsiveContainer, Tooltip } from 'recharts'
 import './App.css'
+
+const COLORS = [
+  '#7c3aed',
+  '#db2777',
+  '#2563eb',
+  '#f97316',
+  '#16a34a',
+  '#eab308',
+  '#64748b',
+]
 
 function App() {
   const [expenses, setExpenses] = useState(() => {
@@ -9,6 +20,7 @@ function App() {
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('Food')
   const [note, setNote] = useState('')
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
 
   const [budget, setBudget] = useState(() => {
     return localStorage.getItem('budget') || '10000'
@@ -29,6 +41,20 @@ function App() {
 
   const remaining = Number(budget) - totalSpent
 
+  const categoryData = Object.values(
+    expenses.reduce((data, expense) => {
+      if (!data[expense.category]) {
+        data[expense.category] = {
+          name: expense.category,
+          value: 0,
+        }
+      }
+
+      data[expense.category].value += Number(expense.amount)
+      return data
+    }, {})
+  )
+
   function addExpense(event) {
     event.preventDefault()
 
@@ -42,6 +68,7 @@ function App() {
       amount,
       category,
       note,
+      date,
     }
 
     setExpenses([newExpense, ...expenses])
@@ -117,6 +144,12 @@ function App() {
             onChange={(event) => setNote(event.target.value)}
           />
 
+          <input
+            type="date"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
+
           <button type="submit">Add Expense</button>
         </form>
 
@@ -130,7 +163,9 @@ function App() {
               <div className="expense-item" key={expense.id}>
                 <div>
                   <strong>{expense.category}</strong>
-                  <p>{expense.note || 'No note added'}</p>
+                  <p>
+                    {expense.note || 'No note added'} · {expense.date}
+                  </p>
                 </div>
 
                 <div>
@@ -143,6 +178,39 @@ function App() {
             ))
           )}
         </section>
+      </section>
+
+      <section className="chart-section">
+        <h2>Category-wise Expense Chart</h2>
+
+        {categoryData.length === 0 ? (
+          <p>Add expenses to see the chart.</p>
+        ) : (
+          <div className="chart-box">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={105}
+                  label
+                >
+                  {categoryData.map((item, index) => (
+                    <Cell
+                      key={item.name}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `₹${value}`} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </section>
     </main>
   )
